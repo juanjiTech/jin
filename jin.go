@@ -114,6 +114,7 @@ func (engine *Engine) allocateContext(maxParams uint16) *Context {
 // Default returns an Engine instance with the Logger and Recovery middleware already attached.
 func Default() *Engine {
 	engine := New()
+	engine.Use(Recovery())
 	// TODO: There should add some middleware
 	return engine
 }
@@ -125,6 +126,18 @@ func (engine *Engine) Handler() http.Handler {
 
 	h2s := &http2.Server{}
 	return h2c.NewHandler(engine, h2s)
+}
+
+// NoRoute adds handlers for NoRoute. It returns a 404 code by default.
+func (engine *Engine) NoRoute(handlers ...HandlerFunc) {
+	engine.noRoute = handlers
+	engine.rebuild404Handlers()
+}
+
+// NoMethod sets the handlers called when Engine.HandleMethodNotAllowed = true.
+func (engine *Engine) NoMethod(handlers ...HandlerFunc) {
+	engine.noMethod = handlers
+	engine.rebuild405Handlers()
 }
 
 // Use attaches a global middleware to the router. i.e. the middleware attached through Use() will be

@@ -1,14 +1,10 @@
 package jin
 
 import (
-	"math"
 	"net/http"
 	"regexp"
 	"strings"
 )
-
-// maxHandlerChainLen represents a typical value used in abort functions.
-const maxHandlerChainLen int8 = math.MaxInt8 >> 1
 
 var (
 	// regEnLetter matches english letters for http method name
@@ -165,7 +161,7 @@ func (group *RouterGroup) staticFileHandler(relativePath string, handler Handler
 
 func (group *RouterGroup) combineHandlers(handlers HandlersChain) HandlersChain {
 	finalSize := len(group.Handlers) + len(handlers)
-	if finalSize > int(maxHandlerChainLen) {
+	if finalSize > int(abortIndex) {
 		panic("too many handlers")
 	}
 	mergedHandlers := make(HandlersChain, finalSize)

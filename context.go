@@ -3,8 +3,12 @@ package jin
 import (
 	"fmt"
 	"github.com/juanjiTech/inject"
+	"math"
 	"net/http"
 )
+
+// abortIndex represents a typical value used in abort functions.
+const abortIndex int8 = math.MaxInt8 >> 1
 
 type Context struct {
 	inject.Injector
@@ -50,4 +54,17 @@ func (c *Context) Next() {
 			c.Map(val.Interface())
 		}
 	}
+}
+
+// IsAborted returns true if the current context was aborted.
+func (c *Context) IsAborted() bool {
+	return c.index >= abortIndex
+}
+
+// Abort prevents pending handlers from being called. Note that this will not stop the current handler.
+// Let's say you have an authorization middleware that validates that the current request is authorized.
+// If the authorization fails (ex: the password does not match), call Abort to ensure the remaining handlers
+// for this request are not called.
+func (c *Context) Abort() {
+	c.index = abortIndex
 }
