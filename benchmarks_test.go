@@ -5,9 +5,51 @@ import (
 	"testing"
 )
 
-func BenchmarkOneRoute(B *testing.B) {
+func BenchmarkOneRouteOneNormalHandler(B *testing.B) {
+	router := New()
+	router.Map("")
+	router.GET("/ping", func(s string) {})
+	runRequest(B, router, "GET", "/ping")
+}
+
+func BenchmarkOneRouteTenNormalHandler(B *testing.B) {
+	router := New()
+	router.Map("")
+	router.GET("/ping",
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+		func(s string) {},
+	)
+	runRequest(B, router, "GET", "/ping")
+}
+
+func BenchmarkOneRouteOneFastInvokeHandler(B *testing.B) {
 	router := New()
 	router.GET("/ping", func(c *Context) {})
+	runRequest(B, router, "GET", "/ping")
+}
+
+func BenchmarkOneRouteTenFastInvokeHandler(B *testing.B) {
+	router := New()
+	router.GET("/ping",
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+		func(c *Context) {},
+	)
 	runRequest(B, router, "GET", "/ping")
 }
 

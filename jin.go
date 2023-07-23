@@ -19,20 +19,6 @@ var (
 var regSafePrefix = regexp.MustCompile("[^a-zA-Z0-9/-]+")
 var regRemoveRepeatedChar = regexp.MustCompile("/{2,}")
 
-// HandlerFunc defines the handler used by Jin middleware as return value.
-type HandlerFunc interface{}
-
-// HandlersChain defines a HandlerFunc slice.
-type HandlersChain []HandlerFunc
-
-// Last returns the last handler in the chain. i.e. the last handler is the main one.
-func (c HandlersChain) Last() HandlerFunc {
-	if length := len(c); length > 0 {
-		return c[length-1]
-	}
-	return nil
-}
-
 type Engine struct {
 	inject.Injector
 	RouterGroup
@@ -168,6 +154,8 @@ func (engine *Engine) addRoute(method, path string, handlers HandlersChain) {
 	if len(handlers) == 0 {
 		panic("there must be at least one handler")
 	}
+
+	fastInvokeWarpHandlerChain(handlers)
 
 	debugPrintRoute(method, path, handlers)
 
