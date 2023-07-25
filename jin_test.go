@@ -25,5 +25,5 @@ func TestDefaultEngine(t *testing.T) {
 		panic("I am panic")
 	})
 
-	e.Run(":8080")
+	_ = e.Run(":8080")
 }

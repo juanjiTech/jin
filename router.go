@@ -3,7 +3,6 @@ package jin
 import (
 	"net/http"
 	"regexp"
-	"strings"
 )
 
 var (
@@ -147,15 +146,6 @@ func (group *RouterGroup) Match(methods []string, relativePath string, handlers 
 		group.handle(method, relativePath, handlers)
 	}
 
-	return group.returnObj()
-}
-
-func (group *RouterGroup) staticFileHandler(relativePath string, handler HandlerFunc) IRoutes {
-	if strings.Contains(relativePath, ":") || strings.Contains(relativePath, "*") {
-		panic("URL parameters can not be used when serving a static file")
-	}
-	group.GET(relativePath, handler)
-	group.HEAD(relativePath, handler)
 	return group.returnObj()
 }
 
