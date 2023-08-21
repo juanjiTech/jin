@@ -3,7 +3,7 @@ package jin
 import (
 	"bytes"
 	"fmt"
-	"github.com/juanjiTech/inject"
+	"github.com/juanjiTech/inject/v2"
 	"net/http"
 	"os"
 	"runtime"

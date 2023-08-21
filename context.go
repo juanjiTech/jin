@@ -2,7 +2,7 @@ package jin
 
 import (
 	"fmt"
-	"github.com/juanjiTech/inject"
+	"github.com/juanjiTech/inject/v2"
 	"math"
 	"net/http"
 )

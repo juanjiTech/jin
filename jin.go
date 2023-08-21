@@ -1,7 +1,7 @@
 package jin
 
 import (
-	"github.com/juanjiTech/inject"
+	"github.com/juanjiTech/inject/v2"
 	"github.com/juanjiTech/jin/internal/bytesconv"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"

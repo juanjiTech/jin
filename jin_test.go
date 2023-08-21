@@ -1,7 +1,7 @@
 package jin
 
 import (
-	"github.com/juanjiTech/inject"
+	"github.com/juanjiTech/inject/v2"
 	"strconv"
 	"testing"
 )
