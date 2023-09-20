@@ -62,6 +62,9 @@ func fastInvokeWarpHandler(h HandlerFunc) HandlerFunc {
 
 func fastInvokeWarpHandlerChain(hc HandlersChain) {
 	for i, handlerFunc := range hc {
+		if handlerFunc == nil {
+			continue
+		}
 		hc[i] = fastInvokeWarpHandler(handlerFunc)
 	}
 }
