@@ -26,6 +26,9 @@ func resolveAddress(addr []string) string {
 }
 
 func nameOfFunction(f any) string {
+	if f == nil {
+		return "nil"
+	}
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
