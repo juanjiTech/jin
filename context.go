@@ -36,6 +36,16 @@ func (c *Context) reset() {
 	c.fullPath = ""
 }
 
+// FullPath returns a matched route full path. For not found routes
+// returns an empty string.
+//
+//	router.GET("/user/:id", func(c *gin.Context) {
+//	    c.FullPath() == "/user/:id" // true
+//	})
+func (c *Context) FullPath() string {
+	return c.fullPath
+}
+
 // Next should be used only inside middleware.
 // It executes the pending handlers in the chain inside the calling handler.
 // See example in GitHub.
