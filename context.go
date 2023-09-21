@@ -53,6 +53,10 @@ func (c *Context) Next() {
 	c.index++
 	for c.index < int8(len(c.handlers)) {
 		h := c.handlers[c.index]
+		if h == nil {
+			c.index++
+			continue
+		}
 		values, err := c.Invoke(h)
 		if err != nil {
 			panic(fmt.Sprintf("unable to invoke the %s handler [%s:%T]: %v",

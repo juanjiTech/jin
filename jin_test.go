@@ -2,6 +2,7 @@ package jin
 
 import (
 	"github.com/juanjiTech/inject/v2"
+	"net/http"
 	"strconv"
 	"testing"
 )
@@ -15,6 +16,7 @@ func TestDefaultEngine(t *testing.T) {
 	i.Map(123)
 	e := Default()
 	e.SetParent(i)
+	e.NoRoute(http.NotFound)
 	e.GET("/ping", func(c *Context) {
 		_, _ = c.Writer.WriteString("pong")
 	}, func(c *Context, v int) {

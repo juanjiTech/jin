@@ -3,7 +3,6 @@ package jin
 import (
 	"bytes"
 	"fmt"
-	"github.com/juanjiTech/inject/v2"
 	"net/http"
 	"os"
 	"runtime"
@@ -121,8 +120,7 @@ pre {
 				stack := stack(3)
 
 				// Lookup the current ResponseWriter
-				val := c.Value(inject.InterfaceOf((*http.ResponseWriter)(nil)))
-				w := val.Interface().(http.ResponseWriter)
+				w := c.Writer
 
 				// Respond with panic message only in development mode
 				var body []byte

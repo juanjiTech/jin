@@ -195,7 +195,7 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	c.writermem.reset(w)
 	c.reset()
 	c.Request = req
-	c.Map(w, req, c)
+	c.Map(c.Writer, req, c)
 	c.SetParent(engine.Injector)
 
 	engine.handleHTTPRequest(c)
