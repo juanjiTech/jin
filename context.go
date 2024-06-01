@@ -3,6 +3,7 @@ package jin
 import (
 	"fmt"
 	"github.com/juanjiTech/inject/v2"
+	"github.com/juanjiTech/jin/render"
 	"math"
 	"net/http"
 )
@@ -17,6 +18,9 @@ type Context struct {
 	Writer    ResponseWriter
 	Params    Params
 
+	// Errors is a list of errors attached to all the handlers/middlewares who used this context.
+	Errors []*error
+
 	handlers HandlersChain
 	fullPath string
 	index    int8
@@ -29,6 +33,8 @@ func (c *Context) reset() {
 	c.Injector.Reset()
 	c.Writer = &c.writermem
 	c.Params = c.Params[:0]
+
+	c.Errors = c.Errors[:0]
 
 	*c.params = (*c.params)[:0]
 	c.handlers = nil
@@ -81,4 +87,53 @@ func (c *Context) IsAborted() bool {
 // for this request are not called.
 func (c *Context) Abort() {
 	c.index = abortIndex
+}
+
+// Error attaches an error to the current context. The error is pushed to a list of errors.
+// It's a good idea to call Error for each error that occurred during the resolution of a request.
+// A middleware can be used to collect all the errors and push them to a database together,
+// print a log, or append it in the HTTP response.
+// Error will panic if err is nil.
+func (c *Context) Error(err error) *error {
+	if err == nil {
+		panic("err is nil")
+	}
+
+	c.Errors = append(c.Errors, &err)
+	return &err
+}
+
+// Status sets the HTTP response code.
+func (c *Context) Status(code int) {
+	c.Writer.WriteHeader(code)
+}
+
+// bodyAllowedForStatus is a copy of http.bodyAllowedForStatus non-exported function.
+func bodyAllowedForStatus(status int) bool {
+	switch {
+	case status >= 100 && status <= 199:
+		return false
+	case status == http.StatusNoContent:
+		return false
+	case status == http.StatusNotModified:
+		return false
+	}
+	return true
+}
+
+// Render writes the response headers and calls render.Render to render data.
+func (c *Context) Render(code int, r render.Render) {
+	c.Status(code)
+
+	if !bodyAllowedForStatus(code) {
+		r.WriteContentType(c.Writer)
+		c.Writer.WriteHeaderNow()
+		return
+	}
+
+	if err := r.Render(c.Writer); err != nil {
+		// Pushing error to c.Errors
+		_ = c.Error(err)
+		c.Abort()
+	}
 }
