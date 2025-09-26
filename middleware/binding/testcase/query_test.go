@@ -29,7 +29,7 @@ func TestJinQuery(t *testing.T) {
 		}
 		fmt.Println("Request Body:", string(buf), "End")
 	})
-	engine.GET("/query/2", binding.Query(ExampleQuery{}), func(ctx *jin.Context, req ExampleQuery) {
+	engine.GET("/query/2", binding.Query(&ExampleQuery{}), func(ctx *jin.Context, req ExampleQuery) {
 		_ = render.WriteJSON(ctx.Writer, map[string]int{
 			req.Query: req.Value,
 		})

@@ -11,6 +11,10 @@ import (
 func Query[T any](model T) jin.HandlerFunc {
 	_ = model // to avoid unused variable warning
 	typer := reflect.TypeOf(model)
+	if typer.Kind() == reflect.Ptr {
+		typer = typer.Elem()
+	}
+	// only support struct
 	if typer.Kind() != reflect.Struct {
 		panic("model must be a struct")
 	}
