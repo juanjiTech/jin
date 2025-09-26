@@ -1,0 +1,9 @@
+### POST request to example server
+POST localhost:8080/query/1?query=123&value=12345
+Content-Type: application/json
+
+{"name": "John Doe"}
+
+### GET request to example server
+GET localhost:8080/query/2?query=123
+

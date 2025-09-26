@@ -2,11 +2,12 @@ package testcase
 
 import (
 	"fmt"
+	"io"
+	"testing"
+
 	"github.com/juanjiTech/jin"
 	"github.com/juanjiTech/jin/middleware/binding"
 	"github.com/juanjiTech/jin/render"
-	"io"
-	"testing"
 )
 
 type ExampleReq struct {
@@ -24,5 +25,5 @@ func TestJinBind(t *testing.T) {
 		}
 		fmt.Println("Request Body:", string(buf), "End")
 	})
-	engine.Run(":8080")
+	_ = engine.Run(":8080")
 }

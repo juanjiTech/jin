@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/juanjiTech/jin"
 	"io"
+
+	"github.com/juanjiTech/jin"
 )
 
 func noSideEffectJsonUnmarshal(reader io.ReadCloser, v any) (bytes.Buffer, error) {
