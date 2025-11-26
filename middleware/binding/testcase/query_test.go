@@ -11,15 +11,24 @@ import (
 )
 
 type ExampleQuery struct {
-	Query string `query:"query"`
-	Value int    `query:"value"`
+	Query           string     `query:"query"`
+	Value           int        `query:"value"`
+	TestIntSlice    []int      `query:"test_int_slice"`
+	TestStringSlice []string   `query:"test_string_slice"`
+	TestStruct      TestStruct `query:"teststruct"`
+}
+
+type TestStruct struct {
+	Field1 int    `query:"field1"`
+	Field2 string `query:"field2"`
 }
 
 func TestJinQuery(t *testing.T) {
 	engine := jin.New()
 	engine.POST("/query/1", binding.Query(ExampleQuery{}), func(ctx *jin.Context, req ExampleQuery) {
-		_ = render.WriteJSON(ctx.Writer, map[string]int{
-			req.Query: req.Value,
+		_ = render.WriteJSON(ctx.Writer, map[string]any{
+			req.Query:  req.Value,
+			"requests": req,
 		})
 		fmt.Println("Received Query: ", req.Query)
 		fmt.Println("Received Value: ", req.Value)
@@ -30,8 +39,9 @@ func TestJinQuery(t *testing.T) {
 		fmt.Println("Request Body:", string(buf), "End")
 	})
 	engine.GET("/query/2", binding.Query(&ExampleQuery{}), func(ctx *jin.Context, req ExampleQuery) {
-		_ = render.WriteJSON(ctx.Writer, map[string]int{
-			req.Query: req.Value,
+		_ = render.WriteJSON(ctx.Writer, map[string]any{
+			req.Query:  req.Value,
+			"requests": req,
 		})
 		fmt.Println("Received Query: ", req.Query)
 		fmt.Println("Received Value: ", req.Value)
