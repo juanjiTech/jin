@@ -1,6 +1,7 @@
 package jin
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"path"
@@ -8,6 +9,63 @@ import (
 	"runtime"
 	"strconv"
 )
+
+// FuncReturnInfo contains information about a function's return values
+type FuncReturnInfo struct {
+	NumOut  int            // Number of return values
+	OutTypes []reflect.Type // Types of each return value
+}
+
+// GetFuncReturnTypes returns the return types of a function using reflection.
+// It panics if the provided value is not a function.
+func GetFuncReturnTypes(fn any) FuncReturnInfo {
+	fnType := reflect.TypeOf(fn)
+	if fnType == nil || fnType.Kind() != reflect.Func {
+		panic(fmt.Sprintf("expected a function, got %T", fn))
+	}
+
+	numOut := fnType.NumOut()
+	outTypes := make([]reflect.Type, numOut)
+	for i := 0; i < numOut; i++ {
+		outTypes[i] = fnType.Out(i)
+	}
+
+	return FuncReturnInfo{
+		NumOut:   numOut,
+		OutTypes: outTypes,
+	}
+}
+
+// CallFuncAndGetReturns calls a function with the given arguments and returns
+// the return values along with their types.
+// It panics if fn is not a function or if the arguments don't match.
+func CallFuncAndGetReturns(fn any, args ...any) (values []any, types []reflect.Type) {
+	fnValue := reflect.ValueOf(fn)
+	fnType := fnValue.Type()
+
+	if fnType.Kind() != reflect.Func {
+		panic(fmt.Sprintf("expected a function, got %T", fn))
+	}
+
+	// Prepare arguments
+	in := make([]reflect.Value, len(args))
+	for i, arg := range args {
+		in[i] = reflect.ValueOf(arg)
+	}
+
+	// Call the function
+	results := fnValue.Call(in)
+
+	// Extract values and types
+	values = make([]any, len(results))
+	types = make([]reflect.Type, len(results))
+	for i, result := range results {
+		values[i] = result.Interface()
+		types[i] = result.Type()
+	}
+
+	return values, types
+}
 
 func resolveAddress(addr []string) string {
 	switch len(addr) {
