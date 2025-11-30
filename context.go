@@ -2,10 +2,12 @@ package jin
 
 import (
 	"fmt"
-	"github.com/juanjiTech/inject/v2"
-	"github.com/juanjiTech/jin/render"
 	"math"
 	"net/http"
+	"reflect"
+
+	"github.com/juanjiTech/inject/v2"
+	"github.com/juanjiTech/jin/render"
 )
 
 // abortIndex represents a typical value used in abort functions.
@@ -70,8 +72,11 @@ func (c *Context) Next() {
 		}
 		c.index++
 
-		for _, val := range values {
-			c.Map(val.Interface())
+		fnType := reflect.TypeOf(h)
+		// ignore check fnType is nil or Func
+
+		for i, val := range values {
+			c.Set(fnType.Out(i), val)
 		}
 	}
 }
