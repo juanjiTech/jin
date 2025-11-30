@@ -1,7 +1,6 @@
 package jin
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"testing"
