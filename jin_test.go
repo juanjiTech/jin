@@ -1,10 +1,11 @@
 package jin
 
 import (
-	"github.com/juanjiTech/inject/v2"
 	"net/http"
 	"strconv"
 	"testing"
+
+	"github.com/juanjiTech/inject/v2"
 )
 
 func TestDefaultEngine(t *testing.T) {
