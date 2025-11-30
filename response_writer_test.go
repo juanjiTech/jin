@@ -146,3 +146,38 @@ func TestResponseWriterStatusCode(t *testing.T) {
 	// status must be 200 although we tried to change it
 	assert.Equal(t, http.StatusOK, w.Status())
 }
+
+type mockPusher struct {
+	http.ResponseWriter
+}
+
+func (m *mockPusher) Push(target string, opts *http.PushOptions) error {
+	return nil
+}
+
+func TestResponseWriterPusher(t *testing.T) {
+	t.Run("Pusher not supported", func(t *testing.T) {
+		writer := &responseWriter{}
+		writer.reset(httptest.NewRecorder())
+		assert.Nil(t, writer.Pusher())
+	})
+
+	t.Run("Pusher supported", func(t *testing.T) {
+		writer := &responseWriter{}
+		writer.reset(&mockPusher{ResponseWriter: httptest.NewRecorder()})
+		assert.NotNil(t, writer.Pusher())
+	})
+}
+
+func TestResponseWriterHijackWithNoSize(t *testing.T) {
+	testWriter := httptest.NewRecorder()
+	writer := &responseWriter{}
+	writer.reset(testWriter)
+	writer.size = -1
+
+	assert.Panics(t, func() {
+		_, _, err := writer.Hijack()
+		assert.NoError(t, err)
+	})
+	assert.Equal(t, 0, writer.size)
+}

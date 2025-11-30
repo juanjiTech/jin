@@ -2,10 +2,11 @@ package cors
 
 import (
 	"errors"
-	"github.com/juanjiTech/jin"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/juanjiTech/jin"
 )
 
 // Config represents all available options for the middleware.
@@ -241,10 +242,10 @@ func (cors *cors) applyCors(c *jin.Context) {
 
 	if c.Request.Method == "OPTIONS" {
 		cors.handlePreflight(c)
-		defer func() {
-			c.Writer.WriteHeader(http.StatusNoContent) // Using 204 is better than 200 when the request status is OPTIONS
-			c.Abort()
-		}()
+		c.Status(http.StatusNoContent)
+		c.Writer.WriteHeaderNow()
+		c.Abort()
+		return
 	} else {
 		cors.handleNormal(c)
 	}

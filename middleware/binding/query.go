@@ -42,38 +42,38 @@ func recursiveSetting(typer reflect.Type, queries url.Values, prefix string) (va
 			valueT.Field(i).Set(recursiveSetting(field.Type, queries, queryKey))
 		case reflect.Slice:
 			slicesType := field.Type.Elem()
-			if slicesType.Kind() == reflect.String {
-				valueT.Field(i).Set(reflect.ValueOf(queries[queryKey]))
+			sliceValue := reflect.MakeSlice(field.Type, 0, 0)
+			queryValue := queries.Get(queryKey)
+			if queryValue == "" {
 				continue
-			} else {
-				sliceValue := reflect.MakeSlice(field.Type, 0, 0)
-				for _, v := range queries[queryKey] {
-					newValue := reflect.New(slicesType)
-					newValue = newValue.Elem()
-					switch slicesType.Kind() {
-					case reflect.Bool:
-						if v == "true" || v == "1" || v == "True" {
-							newValue.SetBool(true)
-						} else {
-							newValue.SetBool(false)
-						}
-					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-						// failed to parse will return 0
-						intx, _ := strconv.ParseInt(v, 10, 64)
-						newValue.SetInt(intx)
-					case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-						// failed to parse will return 0
-						uintx, _ := strconv.ParseUint(v, 10, 64)
-						newValue.SetUint(uintx)
-					case reflect.Float32, reflect.Float64:
-						// failed to parse will return 0
-						float, _ := strconv.ParseFloat(v, 64)
-						newValue.SetFloat(float)
-					}
-					sliceValue = reflect.Append(sliceValue, newValue)
-				}
-				valueT.Field(i).Set(sliceValue)
 			}
+			for _, v := range strings.Split(queryValue, ",") {
+				newValue := reflect.New(slicesType).Elem()
+				switch slicesType.Kind() {
+				case reflect.String:
+					newValue.SetString(v)
+				case reflect.Bool:
+					if v == "true" || v == "1" || v == "True" {
+						newValue.SetBool(true)
+					} else {
+						newValue.SetBool(false)
+					}
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					// failed to parse will return 0
+					intx, _ := strconv.ParseInt(v, 10, 64)
+					newValue.SetInt(intx)
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					// failed to parse will return 0
+					uintx, _ := strconv.ParseUint(v, 10, 64)
+					newValue.SetUint(uintx)
+				case reflect.Float32, reflect.Float64:
+					// failed to parse will return 0
+					float, _ := strconv.ParseFloat(v, 64)
+					newValue.SetFloat(float)
+				}
+				sliceValue = reflect.Append(sliceValue, newValue)
+			}
+			valueT.Field(i).Set(sliceValue)
 		case reflect.String:
 			value := queries.Get(queryKey)
 			valueT.Field(i).SetString(value)
@@ -117,8 +117,7 @@ func Query[T any](model T) jin.HandlerFunc {
 		panic("model must be a struct")
 	}
 	return func(ctx *jin.Context) {
-		u, _ := url.Parse(ctx.Request.RequestURI)
-		queries := u.Query()
+		queries := ctx.Request.URL.Query()
 		valueT := recursiveSetting(typer, queries, "")
 		ctx.Map(valueT.Interface())
 	}

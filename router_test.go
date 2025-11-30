@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRouterGroup(t *testing.T) {
@@ -171,5 +173,72 @@ func TestNoRoute(t *testing.T) {
 		if w.Code != http.StatusMethodNotAllowed {
 			t.Errorf("expected status code %d, but got %d", http.StatusMethodNotAllowed, w.Code)
 		}
+	})
+}
+
+func TestRouterGroupBasePath(t *testing.T) {
+	engine := New()
+	assert.Equal(t, "/", engine.BasePath())
+
+	api := engine.Group("/api")
+	assert.Equal(t, "/api", api.BasePath())
+
+	v1 := api.Group("/v1")
+	assert.Equal(t, "/api/v1", v1.BasePath())
+}
+
+func TestRouterHandleAndMatch(t *testing.T) {
+	handler := func(c *Context) {
+		c.Writer.WriteString(c.Request.Method)
+	}
+
+	t.Run("TestHandle", func(t *testing.T) {
+		engine := New()
+		engine.Handle("CUSTOM", "/custom", handler)
+		engine.Handle("CUSTOM", "/custom2", handler)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("CUSTOM", "/custom", nil)
+		engine.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, "CUSTOM", w.Body.String())
+
+		w2 := httptest.NewRecorder()
+		req2, _ := http.NewRequest("CUSTOM", "/custom2", nil)
+		engine.ServeHTTP(w2, req2)
+
+		assert.Equal(t, http.StatusOK, w2.Code)
+		assert.Equal(t, "CUSTOM", w2.Body.String())
+	})
+
+	t.Run("TestHandleInvalidMethod", func(t *testing.T) {
+		engine := New()
+		handler := func(c *Context) {}
+		assert.Panics(t, func() {
+			engine.Handle("invalid method", "/test", handler)
+		})
+		assert.Panics(t, func() {
+			engine.Handle("INVALID-METHOD", "/test", handler)
+		})
+	})
+
+	t.Run("TestMatch", func(t *testing.T) {
+		engine := New()
+		engine.Match([]string{"GET", "POST"}, "/match", handler)
+
+		// Test GET
+		wGet := httptest.NewRecorder()
+		reqGet, _ := http.NewRequest("GET", "/match", nil)
+		engine.ServeHTTP(wGet, reqGet)
+		assert.Equal(t, http.StatusOK, wGet.Code)
+		assert.Equal(t, "GET", wGet.Body.String())
+
+		// Test POST
+		wPost := httptest.NewRecorder()
+		reqPost, _ := http.NewRequest("POST", "/match", nil)
+		engine.ServeHTTP(wPost, reqPost)
+		assert.Equal(t, http.StatusOK, wPost.Code)
+		assert.Equal(t, "POST", wPost.Body.String())
 	})
 }

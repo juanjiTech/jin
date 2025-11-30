@@ -1,14 +1,15 @@
 package jin
 
 import (
-	"github.com/juanjiTech/inject/v2"
-	"github.com/juanjiTech/jin/internal/bytesconv"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"net/http"
 	"path"
 	"regexp"
 	"sync"
+
+	"github.com/juanjiTech/inject/v2"
+	"github.com/juanjiTech/jin/internal/bytesconv"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 var (

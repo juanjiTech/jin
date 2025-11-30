@@ -3,6 +3,7 @@ package binding
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -28,12 +29,18 @@ func JSON[T any](model T) jin.HandlerFunc {
 		if r.Body != nil {
 			buf, err := noSideEffectJsonUnmarshal(r.Body, &t)
 			if err != nil {
-				ctx.Error(err)
-				ctx.Abort()
-				return
+				// EOF means empty body, which is not an error in this context.
+				// We should continue to the next handler.
+				if !errors.Is(err, io.EOF) {
+					ctx.Error(err)
+					ctx.Abort()
+					return
+				}
+			} else {
+				// Only map the model if decoding was successful.
+				ctx.Map(t)
 			}
 			r.Body = io.NopCloser(&buf)
-			ctx.Map(t)
 		}
 		ctx.Next()
 	}

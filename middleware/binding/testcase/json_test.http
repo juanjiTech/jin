@@ -1,5 +1,0 @@
-### GET request to example server
-POST localhost:8080/json/1
-Content-Type: application/json
-
-{"name": "John Doe"}

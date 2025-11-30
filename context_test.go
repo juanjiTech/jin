@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/juanjiTech/jin/render"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -89,4 +90,47 @@ func TestContextFullPath(t *testing.T) {
 	c, _ := CreateTestContext(httptest.NewRecorder())
 	c.fullPath = "/test/path"
 	assert.Equal(t, "/test/path", c.FullPath())
+}
+
+func TestBodyAllowedForStatus(t *testing.T) {
+	assert.False(t, bodyAllowedForStatus(http.StatusProcessing))
+	assert.False(t, bodyAllowedForStatus(http.StatusNoContent))
+	assert.False(t, bodyAllowedForStatus(http.StatusNotModified))
+	assert.True(t, bodyAllowedForStatus(http.StatusOK))
+}
+
+func TestContextRender(t *testing.T) {
+	recorder := httptest.NewRecorder()
+	c, _ := CreateTestContext(recorder)
+
+	// Test with JSON
+	c.Render(http.StatusOK, render.JSON{Data: map[string]string{"foo": "bar"}})
+	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, "{\"foo\":\"bar\"}", recorder.Body.String())
+	assert.Equal(t, "application/json; charset=utf-8", recorder.Header().Get("Content-Type"))
+
+	// Test with no content
+	recorder = httptest.NewRecorder()
+	c, _ = CreateTestContext(recorder)
+	c.Render(http.StatusNoContent, render.JSON{Data: map[string]string{"foo": "bar"}})
+	assert.Equal(t, http.StatusNoContent, recorder.Code)
+	assert.Empty(t, recorder.Body.String())
+
+	// Test with render error
+	recorder = httptest.NewRecorder()
+	c, _ = CreateTestContext(recorder)
+	c.Render(http.StatusOK, &render.YAML{Data: make(chan int)})
+	assert.True(t, c.IsAborted())
+	assert.NotEmpty(t, c.Errors)
+}
+
+func TestContextNext(t *testing.T) {
+	recorder := httptest.NewRecorder()
+	c, _ := CreateTestContext(recorder)
+	c.handlers = HandlersChain{nil, func(c *Context) {
+		c.Status(http.StatusOK)
+	}}
+	c.Map(c)
+	c.Next()
+	assert.Equal(t, http.StatusOK, recorder.Code)
 }

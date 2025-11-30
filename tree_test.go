@@ -10,6 +10,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Used as a workaround since we can't compare functions or their addresses
@@ -939,4 +941,30 @@ func TestTreeWildcardConflictEx(t *testing.T) {
 			t.Fatalf("invalid wildcard conflict error (%v)", recv)
 		}
 	}
+}
+
+func TestParams(t *testing.T) {
+	ps := Params{
+		Param{Key: "name", Value: "jin"},
+		Param{Key: "age", Value: "22"},
+	}
+
+	t.Run("TestGet", func(t *testing.T) {
+		val, ok := ps.Get("name")
+		assert.True(t, ok)
+		assert.Equal(t, "jin", val)
+
+		val, ok = ps.Get("age")
+		assert.True(t, ok)
+		assert.Equal(t, "22", val)
+
+		_, ok = ps.Get("sex")
+		assert.False(t, ok)
+	})
+
+	t.Run("TestByName", func(t *testing.T) {
+		assert.Equal(t, "jin", ps.ByName("name"))
+		assert.Equal(t, "22", ps.ByName("age"))
+		assert.Equal(t, "", ps.ByName("sex"))
+	})
 }

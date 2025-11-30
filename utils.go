@@ -34,7 +34,7 @@ func nameOfFunction(f any) string {
 
 func lastChar(str string) uint8 {
 	if str == "" {
-		panic("The length of the string can't be 0")
+		return 0
 	}
 	return str[len(str)-1]
 }
@@ -42,6 +42,10 @@ func lastChar(str string) uint8 {
 func joinPaths(absolutePath, relativePath string) string {
 	if relativePath == "" {
 		return absolutePath
+	}
+
+	if absolutePath == "" {
+		return relativePath
 	}
 
 	finalPath := path.Join(absolutePath, relativePath)
