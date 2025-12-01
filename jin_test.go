@@ -239,3 +239,20 @@ func TestEngineRunError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "address already in use")
 }
+
+func BenchmarkAllocations(b *testing.B) {
+	engine := New()
+	engine.GET("/ping", func(c *Context) {
+		c.Writer.Write([]byte("pong"))
+	})
+
+	req, _ := http.NewRequest("GET", "/ping", nil)
+	w := httptest.NewRecorder()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		engine.ServeHTTP(w, req)
+	}
+}

@@ -32,6 +32,9 @@ type Context struct {
 }
 
 func (c *Context) reset() {
+	if c.Injector == nil {
+		c.Injector = inject.New()
+	}
 	c.Injector.Reset()
 	c.Writer = &c.writermem
 	c.Params = c.Params[:0]

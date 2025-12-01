@@ -95,7 +95,7 @@ func New() *Engine {
 func (engine *Engine) allocateContext(maxParams uint16) *Context {
 	v := make(Params, 0, maxParams)
 	skippedNodes := make([]skippedNode, 0, engine.maxSections)
-	return &Context{Injector: inject.New(), params: &v, skippedNodes: &skippedNodes}
+	return &Context{params: &v, skippedNodes: &skippedNodes}
 }
 
 // Default returns an Engine instance with the Logger and Recovery middleware already attached.
