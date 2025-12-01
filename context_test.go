@@ -71,7 +71,7 @@ func TestContextError(t *testing.T) {
 	err := errors.New("test error")
 	c.Error(err)
 	assert.Len(t, c.Errors, 1)
-	assert.Equal(t, "test error", (*c.Errors[0]).Error())
+	assert.Equal(t, "test error", c.Errors[0].Error())
 
 	assert.Panics(t, func() {
 		c.Error(nil)
